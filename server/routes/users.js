@@ -4,6 +4,7 @@ const router = express.Router();
 
 // import controller funcs
 const user = require('../controllers/userController');
+
 //import protectedRoute helper
 const protectedRoute = require('../helpers').protectedRoute;
 
