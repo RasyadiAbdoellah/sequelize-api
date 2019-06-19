@@ -1,10 +1,15 @@
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const passport = require('./server/config/passport');
 
 const UserRoutes = require('./server/routes/users');
 const TodoRoutes = require('./server/routes/todos');
+
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000'
+};
 
 // Set up the express app
 const app = express();
@@ -16,6 +21,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport);
+app.use(cors(corsOptions));
 
 // Setup a default catch-all route that sends back a welcome message in JSON format.
 app.use('', UserRoutes);
