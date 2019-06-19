@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     return bcrypt.compareSync(password, this.password);
   };
   User.associate = function(models) {
+    User.hasMany(models.Todos, { foreignKey: 'userId' });
     // associations can be defined here
   };
   return User;

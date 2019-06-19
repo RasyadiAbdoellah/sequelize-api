@@ -3,7 +3,8 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const passport = require('./server/config/passport');
 
-const AuthRoutes = require('./server/routes/auth');
+const UserRoutes = require('./server/routes/users');
+const TodoRoutes = require('./server/routes/todos');
 
 // Set up the express app
 const app = express();
@@ -17,7 +18,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport);
 
 // Setup a default catch-all route that sends back a welcome message in JSON format.
-app.use('', AuthRoutes);
+app.use('', UserRoutes);
+app.use('', TodoRoutes);
 app.get('*', (req, res) =>
   res.status(200).send({
     message: 'Oops nothing here'

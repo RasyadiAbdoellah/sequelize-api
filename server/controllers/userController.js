@@ -1,33 +1,26 @@
-const express = require('express');
-
-const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 const db = require('../models');
-const passport = require('passport');
 
-const protectedRoute = passport.authenticate('bearer', { session: false });
+//import hashPw helper
+const hashPw = require('../helpers').hashPw;
 
-const router = express.Router();
-
-function hashPw(pw) {
-  return bcrypt.hashSync(pw, 10);
-}
-
-router.post('/sign-up', async (req, res) => {
-  try {
-    user = await db.User.create({
+//createUser will throw an error if the username is not unique
+function createUser(req, res) {
+  return (
+    db.User.create({
       username: req.body.username,
       password: hashPw(req.body.password)
-    });
+    })
+      .then(user => res.send(201))
+      //sends the first error message spit out by sequelize
+      .catch(err => res.status(400).send(err.errors[0].message))
+  );
+}
 
-    res.send(201);
-  } catch (err) {
-    res.send(err);
-  }
-});
-
-router.post('/sign-in', async (req, res) => {
+//signIn rolls a new token to be sent to the client. Sessions implementation is up to the client side as of now
+//uses async await syntax for better readability
+async function signIn(req, res) {
   try {
     const user = await db.User.findOne({ where: { username: req.body.username } });
 
@@ -38,7 +31,7 @@ router.post('/sign-in', async (req, res) => {
     if (!user.validPassword(req.body.password)) {
       return res.status(400).send({ error: 'incorrect password' });
     }
-    //reroll token and send to user
+    //make new token for user
     user.token = crypto.randomBytes(16).toString('hex');
     await user.save();
     await user.reload();
@@ -47,36 +40,40 @@ router.post('/sign-in', async (req, res) => {
 
     return res.status(200).send(resObj);
   } catch (err) {
-    res.status(500).send(err);
+    return res.status(500).send(err);
   }
-});
+}
 
-router.patch('/change-pass', protectedRoute, (req, res) => {
-  if (!req.user.validPassword(req.body.oldPassword)) {
-    return res.status(400).send({ error: 'Incorrect password' });
-  }
+function changePw(req, res) {
+  //COMMENTING OUT VALIDATING OLD PASSWORD BECAUSE USER IS ALREADY SIGNED-IN
+
+  // if (!req.user.validPassword(req.body.oldPassword)) {
+  //   return res.status(400).send({ error: 'Current password is incorrect' });
+  // }
+
   if (req.user.validPassword(req.body.newPassword)) {
     return res.status(400).send({ error: 'New password must be different' });
   }
 
   req.user.password = hashPw(req.body.newPassword);
-
-  //using .then instead of async await because try catch blocks are longer
-  req.user
+  return req.user
     .save()
     .then(() => res.status(201).send({ message: 'password changed' }))
     .catch(err => res.status(500).send(err));
-});
+}
 
-router.delete('/sign-out', protectedRoute, (req, res) => {
-  //reroll token so that user's token is invalidated
+function signOut(req, res) {
+  //reroll token so that client-side token is invalidated
   req.user.token = crypto.randomBytes(16).toString('hex');
-
-  //using .then instead of async await because try catch blocks are longer
-  req.user
+  return req.user
     .save()
     .then(() => res.sendStatus(204))
     .catch(err => res.status(500).send(err));
-});
+}
 
-module.exports = router;
+module.exports = {
+  createUser,
+  signIn,
+  signOut,
+  changePw
+};
