@@ -52,6 +52,15 @@ Once Postgres is installed, `git clone` the project then navigate to `./server/c
  ...
 
 ```
+For some reason I can't get Sequelize to connect to the dev db without a password, so you come accross an error when connecting, try setting a password for the psql user. This can be done by:
+```sh
+# running psql
+psql
+
+# then enter:
+alter user your_username with password 'new_pw'; 
+
+```
 
 Next, `npm install` dependencies. This should also install sequelize-cli locally. Once install is finished, run `sequelize db:create` to create the necessary database, and finally run `sequelize db:migrate` to run migrations.
 
