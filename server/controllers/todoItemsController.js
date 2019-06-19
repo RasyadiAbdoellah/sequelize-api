@@ -29,26 +29,28 @@ function readOne(req, res) {
 //route is todos/:id/items/:itemId
 async function update(req, res) {
   try {
-    const todo = await db.TodoItems.findOne({ where: { id: req.params.itemId } });
-    if (!todo) {
-      return res.status(400).send({ message: 'invalid To-do ID' });
+    const todoItem = await db.TodoItem.findOne({ where: { id: req.params.itemId } });
+    if (!todoItem) {
+      return res.status(400).send({ message: 'invalid item ID' });
     }
-    todo.title = req.body.title;
-    await todo.save();
-    return res.status(200).send(todo);
+    todoItem.content = req.body.content;
+    await todoItem.save();
+    await todoItem.reload();
+    return res.status(200).send(todoItem);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 }
 
 async function destroy(req, res) {
   try {
-    const todo = await db.Todos.findOne({ where: { id: req.params.itemId } });
-    if (!todo) {
-      return res.status(400).send({ message: 'invalid To-do ID' });
+    const todoItem = await db.TodoItem.findOne({ where: { id: req.params.itemId } });
+    if (!todoItem) {
+      return res.status(400).send({ message: 'invalid item ID' });
     }
-    await todo.destroy();
-    return res.status(201).send({ message: 'To-do deleted' });
+    await todoItem.destroy();
+    return res.status(201).send({ message: 'Item deleted' });
   } catch (err) {
     res.status(500).send(err);
   }

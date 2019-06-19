@@ -6,11 +6,19 @@ const todos = require('../controllers/todosController');
 const todoItems = require('../controllers/todoItemsController');
 //import protectedRoute helper
 const protectedRoute = require('../helpers').protectedRoute;
+//make all routes protected
+router.use(protectedRoute);
 
-router.get('/todos', protectedRoute, todos.readAll);
-router.post('/todos', protectedRoute, todos.create);
-router.patch('/todos/:id', protectedRoute, todos.update);
-router.delete('/todos/:id', protectedRoute, todos.destroy);
-router.get('/todos/:id/items', protectedRoute, todoItems.readAll);
+router.get('/todos', todos.readAll);
+router.get('/todos/:id', todos.readOne);
+router.post('/todos', todos.create);
+router.patch('/todos/:id', todos.update);
+router.delete('/todos/:id', todos.destroy);
 
+//todoItem routes are placed here since controller requires param.id
+//may be better to have it on seperate route and have todo id be sent in req.body
+router.get('/todos/:id/items', todoItems.readAll);
+router.post('/todos/:id/items', todoItems.create);
+router.patch('/todos/:id/items/:itemId', todoItems.update);
+router.delete('/todos/:id/items/:itemId', todoItems.destroy);
 module.exports = router;

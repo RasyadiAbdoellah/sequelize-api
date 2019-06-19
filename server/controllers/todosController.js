@@ -9,17 +9,18 @@ function create(req, res) {
     .catch(err => res.status(400).send(err));
 }
 function readAll(req, res) {
-  return db.Todos.findAll({ where: { userId: req.user.id } })
+  return db.Todos.findAll({
+    where: { userId: req.user.id },
+    include: [db.TodoItem]
+  })
     .then(todos => res.status(200).send(todos))
     .catch(err => res.status(500).send(err));
 }
 
 function readOne(req, res) {
   return db.Todos.findOne({
-    where: {
-      id: req.params.id,
-      userId: req.user.id
-    }
+    where: { id: req.params.id, userId: req.user.id },
+    include: [db.TodoItem]
   })
     .then(todos => res.status(200).send(todos))
     .catch(err => res.status(500).send(err));
@@ -29,7 +30,7 @@ function readOne(req, res) {
 //update & destroy uses async await syntax since long promise chains get confusing to read
 async function update(req, res) {
   try {
-    const todo = await db.Todos.findOne({ where: { id: req.params.id } });
+    const todo = await db.Todos.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!todo) {
       return res.status(400).send({ message: 'invalid To-do ID' });
     }
@@ -43,7 +44,7 @@ async function update(req, res) {
 
 async function destroy(req, res) {
   try {
-    const todo = await db.Todos.findOne({ where: { id: req.params.id } });
+    const todo = await db.Todos.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!todo) {
       return res.status(400).send({ message: 'invalid To-do ID' });
     }
