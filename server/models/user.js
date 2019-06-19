@@ -19,7 +19,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       }
     },
-    {}
+    {
+      getterMethods: {
+        userObj() {
+          return {
+            id: this.getDataValue('id'),
+            token: this.getDataValue('token'),
+            username: this.getDataValue('username')
+          };
+        }
+      }
+    }
   );
 
   User.prototype.validPassword = function(password) {

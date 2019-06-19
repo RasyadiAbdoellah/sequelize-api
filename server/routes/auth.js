@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const db = require('../models');
 const passport = require('passport');
 
-const authRoute = passport.authenticate('bearer', { session: false });
+const protectedRoute = passport.authenticate('bearer', { session: false });
 
 const router = express.Router();
 
@@ -43,8 +43,7 @@ router.post('/sign-in', async (req, res) => {
     await user.save();
     await user.reload();
 
-    const resObj = user.get({ plain: true });
-    delete resObj.password;
+    const resObj = await user.get('userObj', { plain: true });
 
     return res.status(200).send(resObj);
   } catch (err) {
@@ -52,29 +51,28 @@ router.post('/sign-in', async (req, res) => {
   }
 });
 
-router.patch('/change-pass', authRoute, async (req, res) => {
-  try {
-    if (!req.user.validPassword(req.body.oldPassword)) {
-      return res.status(400).send({ error: 'Incorrect password' });
-    }
-    if (req.user.validPassword(req.body.newPassword)) {
-      return res.status(400).send({ error: 'New password must be different' });
-    }
-
-    req.user.password = hashPw(req.body.newPassword);
-    await req.user.save();
-
-    res.status(201).send({ message: 'password changed' });
-  } catch (err) {
-    res.status(500).send(err);
+router.patch('/change-pass', protectedRoute, (req, res) => {
+  if (!req.user.validPassword(req.body.oldPassword)) {
+    return res.status(400).send({ error: 'Incorrect password' });
   }
+  if (req.user.validPassword(req.body.newPassword)) {
+    return res.status(400).send({ error: 'New password must be different' });
+  }
+
+  req.user.password = hashPw(req.body.newPassword);
+
+  //using .then instead of async await because try catch blocks are longer
+  req.user
+    .save()
+    .then(() => res.status(201).send({ message: 'password changed' }))
+    .catch(err => res.status(500).send(err));
 });
 
-router.delete('/sign-out', authRoute, (req, res) => {
+router.delete('/sign-out', protectedRoute, (req, res) => {
   //reroll token so that user's token is invalidated
   req.user.token = crypto.randomBytes(16).toString('hex');
 
-  //using .then instead of async await because straightforward logic here
+  //using .then instead of async await because try catch blocks are longer
   req.user
     .save()
     .then(() => res.sendStatus(204))
