@@ -1,5 +1,5 @@
 # sequelize-api
-Built for a fullstack coding challenge. Deployed on heroku at https://sleepy-ravine-96026.herokuapp.com
+Built for a fullstack coding challenge. Deployed on heroku at https://sleepy-ravine-96026.herokuapp.com. Frontend client is deployed on https://rasyadiabdoellah.github.io/crud-client/.
 
 ## Running locally
 Since I built this on Linux **I can only guarantee that running locally will work on \*nix systems**.
