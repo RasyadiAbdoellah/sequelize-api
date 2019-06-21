@@ -24,11 +24,11 @@ async function signIn(req, res) {
   try {
     const user = await db.User.findOne({ where: { username: req.body.username } });
     if (!user) {
-      return res.status(400).send({ error: 'invalid username' });
+      return res.status(400).send('invalid username');
     }
 
     if (!user.validPassword(req.body.password)) {
-      return res.status(400).send({ error: 'incorrect password' });
+      return res.status(400).send('incorrect password');
     }
     //make new token for user
     user.token = crypto.randomBytes(16).toString('hex');
@@ -48,17 +48,17 @@ function changePw(req, res) {
   //COMMENTING OUT VALIDATING OLD PASSWORD BECAUSE USER IS ALREADY SIGNED-IN
 
   // if (!req.user.validPassword(req.body.oldPassword)) {
-  //   return res.status(400).send({ error: 'Current password is incorrect' });
+  //   return res.status(400).send('Current password is incorrect' );
   // }
 
   if (req.user.validPassword(req.body.newPassword)) {
-    return res.status(400).send({ error: 'New password must be different' });
+    return res.status(400).send('New password must be different');
   }
 
   req.user.password = hashPw(req.body.newPassword);
   return req.user
     .save()
-    .then(() => res.status(201).send({ message: 'password changed' }))
+    .then(() => res.status(201).send('password changed'))
     .catch(err => res.status(500).send(err));
 }
 

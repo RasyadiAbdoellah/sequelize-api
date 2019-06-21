@@ -31,7 +31,7 @@ async function update(req, res) {
   try {
     const todoItem = await db.TodoItem.findOne({ where: { id: req.params.itemId } });
     if (!todoItem) {
-      return res.status(400).send({ message: 'invalid item ID' });
+      return res.status(400).send('invalid item ID');
     }
     todoItem.content = req.body.content;
     await todoItem.save();
@@ -47,10 +47,10 @@ async function destroy(req, res) {
   try {
     const todoItem = await db.TodoItem.findOne({ where: { id: req.params.itemId } });
     if (!todoItem) {
-      return res.status(400).send({ message: 'invalid item ID' });
+      return res.status(400).send('invalid item ID');
     }
     await todoItem.destroy();
-    return res.status(201).send({ message: 'Item deleted' });
+    return res.status(201).send('Item deleted');
   } catch (err) {
     res.status(500).send(err);
   }

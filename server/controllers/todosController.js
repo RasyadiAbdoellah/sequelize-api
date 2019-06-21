@@ -28,7 +28,7 @@ function readOne(req, res) {
   })
     .then(todos => {
       if (!todos) {
-        return res.status(400).send({ message: 'invalid To-do ID' });
+        return res.status(400).send('invalid To-do ID');
       }
       return res.status(200).send(todos);
     })
@@ -42,7 +42,7 @@ async function update(req, res) {
   try {
     const todo = await db.Todos.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!todo) {
-      return res.status(400).send({ message: 'invalid To-do ID' });
+      return res.status(400).send('invalid To-do ID');
     }
     todo.title = req.body.title;
     await todo.save();
@@ -56,10 +56,10 @@ async function destroy(req, res) {
   try {
     const todo = await db.Todos.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!todo) {
-      return res.status(400).send({ message: 'invalid To-do ID' });
+      return res.status(400).send('invalid To-do ID');
     }
     await todo.destroy();
-    return res.status(201).send({ message: 'To-do deleted' });
+    return res.status(201).send('To-do deleted');
   } catch (err) {
     res.status(500).send(err);
   }
