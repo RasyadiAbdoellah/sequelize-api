@@ -8,7 +8,6 @@ const strategy = new bearer.Strategy((token, done) => {
   // look for a user whose token matches the one from the header
   db.User.findOne({ where: { token: token } })
     .then(async user => {
-      console.log(user);
       if (!isBefore(Date.now(), user.tokenExpiresAt)) {
         throw new Error('Token has expired');
       }
