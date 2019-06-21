@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-
+const addHours = require('date-fns/add_hours');
 const db = require('../models');
 
 //import hashPw helper
@@ -33,6 +33,8 @@ async function signIn(req, res) {
     }
     //make new token for user
     user.token = crypto.randomBytes(16).toString('hex');
+    //set token expiration in two hours
+    user.tokenExpiresAt = addHours(Date.now(), 2);
     await user.save();
     await user.reload();
 

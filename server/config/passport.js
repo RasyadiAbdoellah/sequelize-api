@@ -1,11 +1,21 @@
 const passport = require('passport');
 const bearer = require('passport-http-bearer');
+const isBefore = require('date-fns/is_before');
+const addHours = require('date-fns/add_hours');
 const db = require('../models');
 
 const strategy = new bearer.Strategy((token, done) => {
   // look for a user whose token matches the one from the header
   db.User.findOne({ where: { token: token } })
-    .then(user => {
+    .then(async user => {
+      if (!isBefore(Date.now(), user.tokenExpiresAt)) {
+        throw new Error('Token has expired');
+      }
+      console.log(user);
+      //renew expiration with every request to a protected route. token expires after 2 hours of inactivity
+      user.tokenExpiresAt = addHours(Date.now(), 2);
+      await user.save();
+      await user.reload();
       return done(null, user, { scope: 'all' });
     })
     .catch(err => {
