@@ -23,7 +23,6 @@ function createUser(req, res) {
 async function signIn(req, res) {
   try {
     const user = await db.User.findOne({ where: { username: req.body.username } });
-
     if (!user) {
       return res.status(400).send({ error: 'invalid username' });
     }
@@ -37,7 +36,6 @@ async function signIn(req, res) {
     user.tokenExpiresAt = addHours(Date.now(), 2);
     await user.save();
     await user.reload();
-
     const resObj = await user.get('userObj', { plain: true });
 
     return res.status(200).send(resObj);

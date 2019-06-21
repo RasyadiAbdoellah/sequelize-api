@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       token: {
         type: DataTypes.STRING
+      },
+      tokenExpiresAt: {
+        type: DataTypes.DATE
       }
     },
     {
