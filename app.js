@@ -30,11 +30,6 @@ app.use(passport);
 app.use(cors(corsOptions));
 
 // Setup a default catch-all route that sends back a message in JSON format.
-app.get('*', (req, res) =>
-  res.status(200).send({
-    message: 'Oops nothing here'
-  })
-);
 
 //use routes defined in ./server/routes
 app.use('', UserRoutes);
